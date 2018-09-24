@@ -1,0 +1,48 @@
+mkdir etherjammin
+clevis init
+
+clevis create Songs
+
+*created stupid simple (stateless) smart contract*
+
+clevis test full
+
+npm link dapparatus (for local dapparatus editing, not really needed when live)
+
+
+added in METATX const at the top
+
+replaced Metamask with Dapparatus
+
+uncomment app code to load contract and transactions 
+
+create the UI to add a song
+
+uncomment code to track events
+
+wire up addSong button
+
+make AddSong events display as spotify songs
+
+add button that sends a little either called GiveProps
+
+added new meta trasaction stuff to the transactions component:
+metaAccount={this.state.metaAccount}
+metaContract={this.state.metaContract}
+metatx={METATX}
+
+
+contract loader needs to also load in the bouncer proxy:
+async ()=>{
+    console.log("====!! Loading dyamic contract "+METATX.contract)
+    let metaContract = customLoader("BouncerProxy",METATX.contract)//new this.state.web3.eth.Contract(require("./contracts/BouncerProxy.abi.js"),this.state.address)
+    console.log("====!! metaContract:",metaContract)
+    this.setState({metaContract:metaContract})
+}
+
+
+Inject bouncer proxy ABI into contracts:
+cp ../bouncer-proxy/src/contracts/* src/contracts/
+
+
+Start detecting Bouncer-Proxy Forwards to show the "MetaFrom"
