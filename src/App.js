@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './App.css';
 import { Dapparatus, Gas, ContractLoader, Transactions, Events, Scaler, Blockie, Address, Button } from "dapparatus"
 import Web3 from 'web3';
+import axios from 'axios';
+var url = require('url');
 
 const METATX = {
   endpoint:"http://0.0.0.0:10001/",
@@ -12,11 +14,23 @@ const METATX = {
 class App extends Component {
   constructor(props) {
     super(props);
+    console.log(window.location)
+    let query =  url.parse(window.location.href);
+    let access_token=""
+    if(query.hash && query.hash.indexOf("#access_token=")>=0){
+      console.log("query.hash",query.hash)
+      access_token = query.hash.replace("#access_token=","").trim()
+      access_token = access_token.substring(0,access_token.indexOf("&"))
+    }
+    console.log("query",query)
     this.state = {
       web3: false,
       account: false,
       gwei: 4,
       addSong: "spotify:track:11NpHoPIRGEQxp0lWB46Ys",
+      access_token: access_token,
+      query: query,
+      spotifyIdentity: false
     }
   }
   handleInput(e){
@@ -24,11 +38,38 @@ class App extends Component {
     update[e.target.name] = e.target.value
     this.setState(update)
   }
-  componentDidMount(){
-
+  componentDidMount() {
+    axios.get('https://api.spotify.com/v1/me/?access_token='+this.state.access_token+'&token_type=Bearer&expires_in=3600')
+    .then((response) => {
+      console.log("!!!!spotifyIdentity",response.data);
+      this.setState({spotifyIdentity:response.data},()=>{
+        console.log("~~this.state.spotifyIdentity",this.state.spotifyIdentity)
+      })
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   }
   render() {
-    let {web3,account,contracts,tx,gwei,block,avgBlockTime,etherscan} = this.state
+    console.log("this.state.spotifyIdentity",this.state.spotifyIdentity)
+    let {access_token,web3,account,contracts,tx,gwei,block,avgBlockTime,etherscan} = this.state
+    if(!access_token){
+      return (
+        <div align="center" style={{marginTop:"20%"}}>
+          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
+          <a href="https://accounts.spotify.com/authorize?client_id=f567bf5955054e16a8008a0fbb114af6&response_type=token&redirect_uri=http://localhost:3000">
+            <img src="loginbutton.png" />
+          </a>
+        </div>
+      )
+    }else if(this.state.spotifyIdentity){
+      return (
+        <div align="center" style={{marginTop:"20%"}}>
+          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
+          {this.state.spotifyIdentity.display_name}
+        </div>
+      )
+    }
     let connectedDisplay = []
     let contractsDisplay = []
     if(web3){

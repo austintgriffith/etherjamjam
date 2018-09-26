@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.18.0",
     "clevis": "0.0.77",
     "dapparatus": "^1.0.21",
     "mocha": "^5.2.0",
+    "query-string": "^6.1.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts": "1.1.5",
