@@ -11,6 +11,11 @@ const METATX = {
   //accountGenerator: "//account.metatx.io",
 }
 
+//don't forget to copy in all the bouncer proxy contracts
+//cp ../bouncer-proxy/src/contracts/* src/contracts/
+//then clevis test full
+
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -53,23 +58,8 @@ class App extends Component {
   render() {
     console.log("this.state.spotifyIdentity",this.state.spotifyIdentity)
     let {access_token,web3,account,contracts,tx,gwei,block,avgBlockTime,etherscan} = this.state
-    if(!access_token){
-      return (
-        <div align="center" style={{marginTop:"20%"}}>
-          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
-          <a href="https://accounts.spotify.com/authorize?client_id=f567bf5955054e16a8008a0fbb114af6&response_type=token&redirect_uri=http://localhost:3000">
-            <img src="loginbutton.png" />
-          </a>
-        </div>
-      )
-    }else if(this.state.spotifyIdentity){
-      return (
-        <div align="center" style={{marginTop:"20%"}}>
-          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
-          {this.state.spotifyIdentity.display_name}
-        </div>
-      )
-    }
+
+
     let connectedDisplay = []
     let contractsDisplay = []
     if(web3){
@@ -155,8 +145,10 @@ class App extends Component {
             }
           }
 
+          let receiverAddress = sender
           let extraBlockie = ""
           if(metaAddress){
+            receiverAddress = metaAddress
             extraBlockie = (
               //metaAddress
               <div style={{position:"absolute",left:-25,top:8}}>
@@ -164,6 +156,9 @@ class App extends Component {
               </div>
             )
           }
+
+          console.log("RECEIVER ADDRESS FOR SONG",sender,metaAddress,receiverAddress)
+
 
           songs.push(
             <div id={s} style={{position:"relative"}}>
@@ -174,7 +169,7 @@ class App extends Component {
                 <Button size="2" style={{}} onClick={()=>{
                   let songHex = this.state.web3.utils.toHex(song)
                   tx(
-                    contracts.Songs.giveProps(sender,songHex),
+                    contracts.Songs.giveProps(receiverAddress,songHex),
                     50000,
                     "0x00",
                     5000000000000000,
@@ -258,6 +253,20 @@ class App extends Component {
       }
 
     }
+    let accessSetup = ""
+    if(!access_token){
+      accessSetup = (
+        <div align="center" style={{marginTop:"20%"}}>
+          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
+          <a href="https://accounts.spotify.com/authorize?client_id=f567bf5955054e16a8008a0fbb114af6&response_type=token&redirect_uri=http://localhost:3000">
+            <img src="loginbutton.png" />
+          </a>
+        </div>
+      )
+      connectedDisplay=""
+      contractsDisplay=""
+    }
+
     return (
       <div className="App">
         <Dapparatus
@@ -277,6 +286,7 @@ class App extends Component {
         />
         {connectedDisplay}
         {contractsDisplay}
+        {accessSetup}
       </div>
     );
   }
