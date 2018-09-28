@@ -10,7 +10,11 @@ contract Songs {
 
 
   function giveProps(address _to,bytes32 _song) public payable {
-    _to.transfer(msg.value);
+    require(
+      msg.value>=5000000000000000,
+      "Songs:giveProps Not Enough Value"
+    );
+    _to.send(msg.value);
     emit GiveProps(_to,_song,msg.value);
   }
   event GiveProps(address _to,bytes32 _song,uint256 _value);

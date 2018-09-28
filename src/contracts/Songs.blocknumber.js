@@ -1,1 +1,1 @@
-module.exports = "60"
+module.exports = "35"

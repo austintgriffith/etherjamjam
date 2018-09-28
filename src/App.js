@@ -10,6 +10,12 @@ const METATX = {
   contract:"0xf5bf6541843D2ba2865e9aeC153F28aaD96F6fbc",
   //accountGenerator: "//account.metatx.io",
 }
+const WEB3_PROVIDER = 'http://0.0.0.0:8545'
+
+// install bouncer proxy contracts: cp ../bouncer-proxy/src/contracts/* src/contracts/
+// then, clevis test full
+// replace contract above ^^^
+
 
 class App extends Component {
   constructor(props) {
@@ -53,23 +59,7 @@ class App extends Component {
   render() {
     console.log("this.state.spotifyIdentity",this.state.spotifyIdentity)
     let {access_token,web3,account,contracts,tx,gwei,block,avgBlockTime,etherscan} = this.state
-    if(!access_token){
-      return (
-        <div align="center" style={{marginTop:"20%"}}>
-          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
-          <a href="https://accounts.spotify.com/authorize?client_id=f567bf5955054e16a8008a0fbb114af6&response_type=token&redirect_uri=http://localhost:3000">
-            <img src="loginbutton.png" />
-          </a>
-        </div>
-      )
-    }else if(this.state.spotifyIdentity){
-      return (
-        <div align="center" style={{marginTop:"20%"}}>
-          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
-          {this.state.spotifyIdentity.display_name}
-        </div>
-      )
-    }
+
     let connectedDisplay = []
     let contractsDisplay = []
     if(web3){
@@ -135,6 +125,7 @@ class App extends Component {
 
         for(let s in this.state.AddedSongs){
           let sender = this.state.AddedSongs[s]._sender
+          let accountToPay = sender
           let song = this.state.web3.utils.hexToUtf8(this.state.AddedSongs[s]._song)
 
           let metaAddress = ""
@@ -157,6 +148,7 @@ class App extends Component {
 
           let extraBlockie = ""
           if(metaAddress){
+            accountToPay = metaAddress
             extraBlockie = (
               //metaAddress
               <div style={{position:"absolute",left:-25,top:8}}>
@@ -164,6 +156,7 @@ class App extends Component {
               </div>
             )
           }
+
 
           songs.push(
             <div id={s} style={{position:"relative"}}>
@@ -173,8 +166,9 @@ class App extends Component {
               <div style={{position:"absolute",left:380,top:12}}>
                 <Button size="2" style={{}} onClick={()=>{
                   let songHex = this.state.web3.utils.toHex(song)
+                  console.log("Account to Pay:",accountToPay)
                   tx(
-                    contracts.Songs.giveProps(sender,songHex),
+                    contracts.Songs.giveProps(accountToPay,songHex),
                     50000,
                     "0x00",
                     5000000000000000,
@@ -211,6 +205,12 @@ class App extends Component {
               <Address
                 {...this.state}
                 address={contracts.Songs._address}
+              />
+            </div>
+            <div>
+              <Address
+                {...this.state}
+                address={this.state.account}
               />
             </div>
             Add Song: <input
@@ -258,6 +258,22 @@ class App extends Component {
       }
 
     }
+
+    let spotifyLogin = ""
+    if(!access_token){
+      spotifyLogin = (
+        <div style={{textAlign:"center"}}>
+          <h1>EtherJamJam - Fake demo app for Dapparatus</h1>
+          <a href="https://accounts.spotify.com/authorize?client_id=f567bf5955054e16a8008a0fbb114af6&response_type=token&redirect_uri=http://localhost:3000">
+            <img src="loginbutton.png" />
+          </a>
+        </div>
+      )
+      contractsDisplay=""
+    }
+    let replaceName = this.state.spotifyIdentity?this.state.spotifyIdentity.display_name:false
+    console.log("$$$",this.state.spotifyIdentity.display_name,replaceName)
+
     return (
       <div className="App">
         <Dapparatus
@@ -265,8 +281,9 @@ class App extends Component {
             DEBUG:false,
             requiredNetwork:['Unknown','Rinkeby'],
           }}
+          replaceName={replaceName}
           metatx={METATX}
-          fallbackWeb3Provider={new Web3.providers.HttpProvider('http://0.0.0.0:8545')}
+          fallbackWeb3Provider={new Web3.providers.HttpProvider(WEB3_PROVIDER)}
           onUpdate={(state)=>{
            console.log("metamask state update:",state)
            if(state.web3Provider) {
@@ -277,6 +294,7 @@ class App extends Component {
         />
         {connectedDisplay}
         {contractsDisplay}
+        {spotifyLogin}
       </div>
     );
   }
