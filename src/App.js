@@ -17,6 +17,11 @@ const WEB3_PROVIDER = 'http://0.0.0.0:8545'
 // replace contract above ^^^
 
 
+//don't forget to copy in all the bouncer proxy contracts
+//cp ../bouncer-proxy/src/contracts/* src/contracts/
+//then clevis test full
+
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -146,6 +151,7 @@ class App extends Component {
             }
           }
 
+          let receiverAddress = sender
           let extraBlockie = ""
           if(metaAddress){
             accountToPay = metaAddress
