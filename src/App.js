@@ -7,7 +7,7 @@ var url = require('url');
 
 const METATX = {
   endpoint:"http://0.0.0.0:10001/",
-  contract:"0xf5bf6541843D2ba2865e9aeC153F28aaD96F6fbc",
+  contract:"0xc6F375A0E0D10CA84AE4681E93080eEAC248f4b5",
   //accountGenerator: "//account.metatx.io",
 }
 const WEB3_PROVIDER = 'http://0.0.0.0:8545'
@@ -38,7 +38,7 @@ class App extends Component {
       web3: false,
       account: false,
       gwei: 4,
-      addSong: "spotify:track:11NpHoPIRGEQxp0lWB46Ys",
+      addSong: "",
       access_token: access_token,
       query: query,
       spotifyIdentity: false
@@ -163,6 +163,26 @@ class App extends Component {
             )
           }
 
+          let songHex = this.state.web3.utils.toHex(song)
+
+          let theseProps = []
+
+
+          let currentProps =  ""
+          if(this.state.GivenProps){
+            for(let p in this.state.GivenProps){
+              let thisProp = this.state.GivenProps[p]
+              console.log("thisProp",thisProp,accountToPay,songHex)
+              if(thisProp._to.toLowerCase()==accountToPay.toLowerCase() && thisProp._song.indexOf(songHex)>=0){
+                console.log("MATCH")
+                theseProps.push(
+                  <span style={{padding:3}}>
+                    <Blockie config={{size:2}} address={thisProp._from}/>
+                  </span>
+                )
+              }
+            }
+          }
 
           songs.push(
             <div id={s} style={{position:"relative"}}>
@@ -171,11 +191,11 @@ class App extends Component {
               <iframe src={"https://open.spotify.com/embed/track/"+song} width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
               <div style={{position:"absolute",left:380,top:12}}>
                 <Button size="2" style={{}} onClick={()=>{
-                  let songHex = this.state.web3.utils.toHex(song)
+
                   console.log("Account to Pay:",accountToPay)
                   tx(
                     contracts.Songs.giveProps(accountToPay,songHex),
-                    50000,
+                    100000,
                     "0x00",
                     5000000000000000,
                     (receipt)=>{
@@ -184,6 +204,7 @@ class App extends Component {
                   }}>
                   Give Props
                 </Button>
+                {theseProps}
               </div>
             </div>
           )
@@ -249,7 +270,7 @@ class App extends Component {
               }}
             />
             <Events
-              config={{hide:false}}
+              config={{hide:true}}
               contract={contracts.Songs}
               eventName={"GiveProps"}
               block={block}

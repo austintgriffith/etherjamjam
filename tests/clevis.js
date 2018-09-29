@@ -99,31 +99,49 @@ module.exports = {
     describe('#publish() ', function() {
       it('should inject contract address and abi into web app', async function() {
         this.timeout(120000)
-        const fs = require("fs")
-        if(!fs.existsSync("src")){
-          fs.mkdirSync("src");
-        }
-        if(!fs.existsSync("src/contracts")){
-          fs.mkdirSync("src/contracts");
-        }
-        for(let c in module.exports.contracts){
-          let thisContract = module.exports.contracts[c]
-          console.log(tab,thisContract.magenta)
-          let address = fs.readFileSync(thisContract+"/"+thisContract+".address").toString().trim()
-          console.log(tab,"ADDRESS:",address.blue)
-          assert(address,"No Address!?")
-          fs.writeFileSync("src/contracts/"+thisContract+".address.js","module.exports = \""+address+"\"");
-          let blockNumber = fs.readFileSync(thisContract+"/"+thisContract+".blockNumber").toString().trim()
-          console.log(tab,"blockNumber:",blockNumber.blue)
-          assert(blockNumber,"No blockNumber!?")
-          fs.writeFileSync("src/contracts/"+thisContract+".blocknumber.js","module.exports = \""+blockNumber+"\"");
-          let abi = fs.readFileSync(thisContract+"/"+thisContract+".abi").toString().trim()
-          fs.writeFileSync("src/contracts/"+thisContract+".abi.js","module.exports = "+abi);
-          let bytecode = fs.readFileSync(thisContract+"/"+thisContract+".bytecode").toString().trim()
-          fs.writeFileSync("src/contracts/"+thisContract+".bytecode.js","module.exports = \""+bytecode+"\"");
-        }
-        fs.writeFileSync("src/contracts/contracts.js","module.exports = "+JSON.stringify(module.exports.contracts));
-        module.exports.reload()
+
+
+        var exec = require('child_process').exec;
+        var coffeeProcess = exec('cp -v ../bouncer-proxy/src/contracts/* ./src/contracts/');
+
+        coffeeProcess.stdout.on('data', function(data) {
+            console.log(data);
+        });
+
+        coffeeProcess.stderr.on('data', function(data) {
+            console.log(data);
+        });
+
+        coffeeProcess.stdout.on('close', function(data) {
+          const fs = require("fs")
+          if(!fs.existsSync("src")){
+            fs.mkdirSync("src");
+          }
+          if(!fs.existsSync("src/contracts")){
+            fs.mkdirSync("src/contracts");
+          }
+          for(let c in module.exports.contracts){
+            let thisContract = module.exports.contracts[c]
+            console.log(tab,thisContract.magenta)
+            let address = fs.readFileSync(thisContract+"/"+thisContract+".address").toString().trim()
+            console.log(tab,"ADDRESS:",address.blue)
+            assert(address,"No Address!?")
+            fs.writeFileSync("src/contracts/"+thisContract+".address.js","module.exports = \""+address+"\"");
+            let blockNumber = fs.readFileSync(thisContract+"/"+thisContract+".blockNumber").toString().trim()
+            console.log(tab,"blockNumber:",blockNumber.blue)
+            assert(blockNumber,"No blockNumber!?")
+            fs.writeFileSync("src/contracts/"+thisContract+".blocknumber.js","module.exports = \""+blockNumber+"\"");
+            let abi = fs.readFileSync(thisContract+"/"+thisContract+".abi").toString().trim()
+            fs.writeFileSync("src/contracts/"+thisContract+".abi.js","module.exports = "+abi);
+            let bytecode = fs.readFileSync(thisContract+"/"+thisContract+".bytecode").toString().trim()
+            fs.writeFileSync("src/contracts/"+thisContract+".bytecode.js","module.exports = \""+bytecode+"\"");
+          }
+          fs.writeFileSync("src/contracts/contracts.js","module.exports = "+JSON.stringify(module.exports.contracts));
+          module.exports.reload()
+        });
+
+
+
       });
     });
   },

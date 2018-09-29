@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 contract Songs {
+
   constructor() public { }
 
   function addSong(bytes32 _song) public {
@@ -15,9 +16,10 @@ contract Songs {
       "Songs:giveProps Not Enough Value"
     );
     _to.send(msg.value);
-    emit GiveProps(_to,_song,msg.value);
+    emit GiveProps(_to,msg.sender,_song,msg.value);
   }
-  event GiveProps(address _to,bytes32 _song,uint256 _value);
+  event GiveProps(address _to,address _from,bytes32 _song,uint256 _value);
+
 }
 
 
